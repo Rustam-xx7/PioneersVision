@@ -4,7 +4,7 @@ import csv
 import os
 
 # ===== GESTURE LABEL =====
-label = "hello"   # 👈 change this for each gesture
+label = "C"   #  change this for each gesture
 
 csv_file = "hand_landmarks.csv"
 file_exists = os.path.isfile(csv_file)
