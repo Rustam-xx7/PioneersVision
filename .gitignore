@@ -210,3 +210,24 @@ __marimo__/
 mediapipe_env/
 hand_landmarks.csv
 cameraCv/
+# ================= ASL PROJECT =================
+
+# Trained ML models (large files)
+model/
+*.pkl
+
+# Training datasets
+*.csv
+data/
+
+# Generated outputs
+recognized_text.txt
+outputs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
