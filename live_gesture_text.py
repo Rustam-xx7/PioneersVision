@@ -6,11 +6,23 @@ import time
 import os
 
 # ================= LOAD MODEL =================
-MODEL_PATH = os.path.join("model", "asl_model.pkl")
+#MODEL_PATH = os.path.join("model", "asl_model.pkl")
+#model = joblib.load(MODEL_PATH)
+import os
+import joblib
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model", "asl_model.pkl")
+
+print("Loading model from:", MODEL_PATH)
 model = joblib.load(MODEL_PATH)
 
+
 # ================= MEDIAPIPE =================
-mp_hands = mp.solutions.hands
+#mp_hands = mp.solutions.handsfrom mediapipe.python.solutions import hands as mp_hands
+from mediapipe.python.solutions import drawing_utils as mp_drawing
+
+
 hands = mp_hands.Hands(
     static_image_mode=False,
     max_num_hands=1,
