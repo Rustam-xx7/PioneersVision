@@ -6,7 +6,8 @@ import time
 import os
 
 # ================= LOAD MODEL =================
-MODEL_PATH = os.path.join("model", "asl_model.pkl")
+# MODEL_PATH = os.path.join("model", "asl_model.pkl")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "asl_model.pkl")
 model = joblib.load(MODEL_PATH)
 
 # ================= MEDIAPIPE =================
