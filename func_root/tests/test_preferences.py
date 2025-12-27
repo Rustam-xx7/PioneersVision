@@ -1,5 +1,5 @@
 
-from func_root.ui.language_options import load_preferences, save_preferences
+from PioneersVision.func_root.ui.language_options import load_preferences, save_preferences
 
 prefs = load_preferences()
 print("Loaded:", prefs)

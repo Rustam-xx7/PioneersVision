@@ -5,23 +5,19 @@ import joblib
 import time
 import os
 
-# ================= LOAD MODEL =================
-#MODEL_PATH = os.path.join("model", "asl_model.pkl")
-#model = joblib.load(MODEL_PATH)
-import os
-import joblib
+from PioneersVision.func_root.translation.translator import translate
+from PioneersVision.func_root.speech.process_translation import process_translation
 
+# ================= LOAD MODEL =================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model", "asl_model.pkl")
 
 print("Loading model from:", MODEL_PATH)
 model = joblib.load(MODEL_PATH)
 
-
 # ================= MEDIAPIPE =================
-#mp_hands = mp.solutions.handsfrom mediapipe.python.solutions import hands as mp_hands
-from mediapipe.python.solutions import drawing_utils as mp_drawing
-
+mp_hands = mp.solutions.hands
+mp_draw = mp.solutions.drawing_utils
 
 hands = mp_hands.Hands(
     static_image_mode=False,
@@ -29,13 +25,12 @@ hands = mp_hands.Hands(
     min_detection_confidence=0.6,
     min_tracking_confidence=0.6
 )
-mp_draw = mp.solutions.drawing_utils
 
 # ================= TEXT STATE =================
 sentence = ""
 last_pred = None
 last_time = 0
-COOLDOWN = 1.0
+COOLDOWN = 1.0  # seconds
 
 # ================= CAMERA =================
 cap = cv2.VideoCapture(0)
@@ -70,13 +65,27 @@ while True:
 
                     if pred == "space":
                         sentence += " "
+
+                        # Save text (debug)
+                        with open("recognized_text.txt", "w", encoding="utf-8") as f:
+                            f.write(sentence)
+
+                        # Last completed word
+                        last_word = sentence.strip().split()[-1]
+
+                        # TRANSLATION (example: Hindi)
+                        translated_text = translate(last_word, target_language="hi")
+
+                        # SPEECH (via common pipeline)
+                        process_translation({
+                            "translated_text": translated_text
+                        })
+
                     elif pred == "del":
                         sentence = sentence[:-1]
+
                     elif pred != "nothing":
                         sentence += pred
-
-                    with open("recognized_text.txt", "w", encoding="utf-8") as f:
-                        f.write(sentence)
 
     cv2.putText(frame, f"Text: {sentence}", (10, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -88,4 +97,3 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-

@@ -1,2 +1,2 @@
-from func_root.speech.speaker import speak
+from PioneersVision.func_root.speech.speaker import speak
 speak("Key is working")

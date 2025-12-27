@@ -1,4 +1,4 @@
-from func_root.utils.validators import validate_text
+from PioneersVision.func_root.utils.validators import validate_text
 
 # should pass
 validate_text("Hello")
