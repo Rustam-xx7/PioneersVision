@@ -1,4 +1,4 @@
-from func_root.speech.voices import get_voice
+from PioneersVision.func_root.speech.voices import get_voice
 
 print(get_voice("en-US", "female"))   # Jenny
 print(get_voice("en-IN", "male"))     # Prabhat

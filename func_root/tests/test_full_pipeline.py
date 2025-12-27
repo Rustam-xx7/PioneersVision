@@ -1,4 +1,4 @@
-from func_root.speech.speaker import speak
+from PioneersVision.func_root.speech.speaker import speak
 from func_root.translation.translator import translate
 
 asl_text = "Welcome to the sign language translation app"
