@@ -1,5 +1,8 @@
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python as mp_python
+from mediapipe.tasks.python import vision as mp_vision
+from mediapipe import Image, ImageFormat
 import numpy as np
 import joblib
 import time
@@ -11,14 +14,25 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "asl_model.pkl")
 model = joblib.load(MODEL_PATH)
 
 # ================= MEDIAPIPE =================
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(
-    static_image_mode=False,
-    max_num_hands=1,
-    min_detection_confidence=0.6,
+HAND_TASK_PATH = os.path.join(os.path.dirname(__file__), "model", "hand_landmarker.task")
+if not os.path.exists(HAND_TASK_PATH):
+    os.makedirs(os.path.dirname(HAND_TASK_PATH), exist_ok=True)
+    import urllib.request
+    url = (
+        "https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
+        "hand_landmarker/float16/latest/hand_landmarker.task"
+    )
+    urllib.request.urlretrieve(url, HAND_TASK_PATH)
+
+base_options = mp_python.BaseOptions(model_asset_path=HAND_TASK_PATH)
+options = mp_vision.HandLandmarkerOptions(
+    base_options=base_options,
+    num_hands=1,
+    min_hand_detection_confidence=0.6,
+    min_hand_presence_confidence=0.6,
     min_tracking_confidence=0.6
 )
-mp_draw = mp.solutions.drawing_utils
+landmarker = mp_vision.HandLandmarker.create_from_options(options)
 
 # ================= TEXT STATE =================
 sentence = ""
@@ -38,14 +52,17 @@ while True:
 
     frame = cv2.flip(frame, 1)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = hands.process(rgb)
+    mp_image = Image(image_format=ImageFormat.SRGB, data=rgb)
+    results = landmarker.detect(mp_image)
 
-    if results.multi_hand_landmarks:
-        for hand in results.multi_hand_landmarks:
-            mp_draw.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS)
-
+    if results.hand_landmarks:
+        for hand in results.hand_landmarks:
+            h, w = frame.shape[:2]
             landmarks = []
-            for lm in hand.landmark:
+            for lm in hand:
+                # Draw simple points for feedback
+                cx, cy = int(lm.x * w), int(lm.y * h)
+                cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
                 landmarks.extend([lm.x, lm.y, lm.z])
 
             if len(landmarks) == 63:
