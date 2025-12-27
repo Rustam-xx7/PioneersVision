@@ -1,0 +1,39 @@
+# ASL Gesture Recognition - Tested Working Dependencies
+# Last verified: December 27, 2025
+# Python version: 3.11.9
+#
+# IMPORTANT: NumPy MUST be between 1.25-1.26 for compatibility:
+# - Requires numpy>=1.25.0 for numpy.exceptions module
+# - Requires numpy<2.0 for TensorFlow 2.12.0 and MediaPipe 0.10.5 compatibility
+#
+# Installation instructions:
+# 1. Create virtual environment: python -m venv venv
+# 2. Activate it: .\venv\Scripts\activate (Windows) or source venv/bin/activate (Linux/Mac)
+# 3. Install: pip install -r requirements.txt
+
+# Computer Vision and Image Processing
+opencv-python==4.12.0.88
+opencv-contrib-python==4.12.0.88
+
+# Machine Learning and Deep Learning
+mediapipe==0.10.5
+numpy==1.26.4
+tensorflow-intel==2.12.0; platform_system == "Windows"
+tensorflow==2.12.0; platform_system != "Windows"
+scikit-learn==1.8.0
+joblib==1.5.3
+
+# Web Framework (optional, if needed for Flask server)
+flask==3.1.2
+flask-cors==6.0.2
+
+# Visualization and Image Processing (optional)
+matplotlib==3.10.8
+pillow==12.0.0
+
+# Additional dependencies
+protobuf==3.20.3
+
+# For development/training (optional)
+# jupyter
+# notebook
