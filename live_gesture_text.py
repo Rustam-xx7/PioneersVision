@@ -4,6 +4,7 @@ import numpy as np
 import joblib
 import time
 import os
+import threading
 
 from PioneersVision.func_root.translation.translator import translate
 from PioneersVision.func_root.speech.process_translation import process_translation
@@ -30,12 +31,23 @@ hands = mp_hands.Hands(
 sentence = ""
 last_pred = None
 last_time = 0
-COOLDOWN = 1.0  # seconds
+COOLDOWN = 0.8  # slightly faster than before
 
 # ================= CAMERA =================
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 print("👉 Press ESC to exit")
+
+# ================= BACKGROUND SPEECH =================
+def speak_async(word):
+    try:
+        translated = translate(word, target_language="hi")
+        process_translation({
+            "translated_text": translated
+        })
+    except Exception as e:
+        print("Speech error:", e)
 
 while True:
     ret, frame = cap.read()
@@ -66,20 +78,21 @@ while True:
                     if pred == "space":
                         sentence += " "
 
-                        # Save text (debug)
+                        # Save text
                         with open("recognized_text.txt", "w", encoding="utf-8") as f:
                             f.write(sentence)
 
-                        # Last completed word
-                        last_word = sentence.strip().split()[-1]
+                        # Extract last word safely
+                        words = sentence.strip().split()
+                        if words:
+                            last_word = words[-1]
 
-                        # TRANSLATION (example: Hindi)
-                        translated_text = translate(last_word, target_language="hi")
-
-                        # SPEECH (via common pipeline)
-                        process_translation({
-                            "translated_text": translated_text
-                        })
+                            # 🔥 NON-BLOCKING SPEECH
+                            threading.Thread(
+                                target=speak_async,
+                                args=(last_word,),
+                                daemon=True
+                            ).start()
 
                     elif pred == "del":
                         sentence = sentence[:-1]
