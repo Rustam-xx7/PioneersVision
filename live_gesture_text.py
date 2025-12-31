@@ -1,49 +1,59 @@
 import cv2
 import mediapipe as mp
-from mediapipe.tasks import python as mp_python
-from mediapipe.tasks.python import vision as mp_vision
-from mediapipe import Image, ImageFormat
 import numpy as np
 import joblib
 import time
 import os
+import threading
+import warnings
+
+# Suppress sklearn warnings (parallel processing and feature names)
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
+warnings.filterwarnings('ignore', message='X does not have valid feature names')
+warnings.simplefilter(action='ignore', category=UserWarning)
+
+from func_root.translation.translator import translate
+from func_root.speech.process_translation import process_translation
 
 # ================= LOAD MODEL =================
-# MODEL_PATH = os.path.join("model", "asl_model.pkl")
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "asl_model.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model", "asl_model.pkl")
+
+print("Loading model from:", MODEL_PATH)
 model = joblib.load(MODEL_PATH)
 
 # ================= MEDIAPIPE =================
-HAND_TASK_PATH = os.path.join(os.path.dirname(__file__), "model", "hand_landmarker.task")
-if not os.path.exists(HAND_TASK_PATH):
-    os.makedirs(os.path.dirname(HAND_TASK_PATH), exist_ok=True)
-    import urllib.request
-    url = (
-        "https://storage.googleapis.com/mediapipe-models/hand_landmarker/"
-        "hand_landmarker/float16/latest/hand_landmarker.task"
-    )
-    urllib.request.urlretrieve(url, HAND_TASK_PATH)
+mp_hands = mp.solutions.hands
+mp_draw = mp.solutions.drawing_utils
 
-base_options = mp_python.BaseOptions(model_asset_path=HAND_TASK_PATH)
-options = mp_vision.HandLandmarkerOptions(
-    base_options=base_options,
-    num_hands=1,
-    min_hand_detection_confidence=0.6,
-    min_hand_presence_confidence=0.6,
+hands = mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=1,
+    min_detection_confidence=0.6,
     min_tracking_confidence=0.6
 )
-landmarker = mp_vision.HandLandmarker.create_from_options(options)
 
 # ================= TEXT STATE =================
 sentence = ""
 last_pred = None
 last_time = 0
-COOLDOWN = 1.0
+COOLDOWN = 0.8  # slightly faster than before
 
 # ================= CAMERA =================
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 print("👉 Press ESC to exit")
+
+# ================= BACKGROUND SPEECH =================
+def speak_async(word):
+    try:
+        translated = translate(word, target_language="hi")
+        process_translation({
+            "translated_text": translated
+        })
+    except Exception as e:
+        print("Speech error:", e)
 
 while True:
     ret, frame = cap.read()
@@ -52,17 +62,14 @@ while True:
 
     frame = cv2.flip(frame, 1)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    mp_image = Image(image_format=ImageFormat.SRGB, data=rgb)
-    results = landmarker.detect(mp_image)
+    results = hands.process(rgb)
 
-    if results.hand_landmarks:
-        for hand in results.hand_landmarks:
-            h, w = frame.shape[:2]
+    if results.multi_hand_landmarks:
+        for hand in results.multi_hand_landmarks:
+            mp_draw.draw_landmarks(frame, hand, mp_hands.HAND_CONNECTIONS)
+
             landmarks = []
-            for lm in hand:
-                # Draw simple points for feedback
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                cv2.circle(frame, (cx, cy), 3, (255, 0, 0), -1)
+            for lm in hand.landmark:
                 landmarks.extend([lm.x, lm.y, lm.z])
 
             if len(landmarks) == 63:
@@ -76,13 +83,28 @@ while True:
 
                     if pred == "space":
                         sentence += " "
+
+                        # Save text
+                        with open("recognized_text.txt", "w", encoding="utf-8") as f:
+                            f.write(sentence)
+
+                        # Extract last word safely
+                        words = sentence.strip().split()
+                        if words:
+                            last_word = words[-1]
+
+                            # 🔥 NON-BLOCKING SPEECH
+                            threading.Thread(
+                                target=speak_async,
+                                args=(last_word,),
+                                daemon=True
+                            ).start()
+
                     elif pred == "del":
                         sentence = sentence[:-1]
+
                     elif pred != "nothing":
                         sentence += pred
-
-                    with open("recognized_text.txt", "w", encoding="utf-8") as f:
-                        f.write(sentence)
 
     cv2.putText(frame, f"Text: {sentence}", (10, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -94,4 +116,3 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-
