@@ -1,9 +1,9 @@
 # speech/engine_azure.py
 import azure.cognitiveservices.speech as speechsdk
-from PioneersVision.func_root.config import AZURE_SPEECH_KEY, AZURE_SPEECH_REGION
-from PioneersVision.func_root.speech.ssml import build_ssml
-from PioneersVision.func_root.utils.logger import logger
-from PioneersVision.func_root.utils.errors import SpeechEngineError
+from func_root.config import AZURE_SPEECH_KEY, AZURE_SPEECH_REGION
+from func_root.speech.ssml import build_ssml
+from func_root.utils.logger import logger
+from func_root.utils.errors import SpeechEngineError
 
 
 def speak_azure(text, language, voice):
