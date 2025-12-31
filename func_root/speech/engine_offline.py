@@ -1,7 +1,7 @@
 # speech/engine_offline.py
 
 import pyttsx3
-from PioneersVision.func_root.utils.logger import logger
+from func_root.utils.logger import logger
 
 _engine = pyttsx3.init()
 

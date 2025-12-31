@@ -1,5 +1,5 @@
 import requests
-from PioneersVision.func_root.config import (
+from func_root.config import (
     AZURE_TRANSLATOR_KEY,
     AZURE_TRANSLATOR_REGION
 )

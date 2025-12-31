@@ -1,9 +1,9 @@
-from PioneersVision.func_root.config import USE_AZURE_SPEECH
-from PioneersVision.func_root.utils.validators import validate_text
-from PioneersVision.func_root.speech.voices import VOICE_MAP
-from PioneersVision.func_root.speech.preferences import load_preferences, save_preferences
-from PioneersVision.func_root.speech.engine_azure import speak_azure
-from PioneersVision.func_root.speech.engine_offline import speak_offline
+from func_root.config import USE_AZURE_SPEECH
+from func_root.utils.validators import validate_text
+from func_root.speech.voices import VOICE_MAP
+from func_root.speech.preferences import load_preferences, save_preferences
+from func_root.speech.engine_azure import speak_azure
+from func_root.speech.engine_offline import speak_offline
 
 def speak(text, language=None, gender=None):
     validate_text(text)
