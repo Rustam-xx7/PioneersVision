@@ -1,7 +1,7 @@
-from func_root.speech.speaker import speak
-from func_root.speech.health import health_check
-from func_root.utils.errors import InvalidInputError
-from func_root.utils.logger import logger
+from PioneersVision.func_root.speech.speaker import speak
+from PioneersVision.func_root.speech.health import health_check
+from PioneersVision.func_root.utils.errors import InvalidInputError
+from PioneersVision.func_root.utils.logger import logger
 
 
 def process_translation(json_input: dict):
