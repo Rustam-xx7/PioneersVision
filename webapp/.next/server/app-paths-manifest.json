@@ -1,5 +1,5 @@
 {
+  "/api/recognition/route": "app/api/recognition/route.js",
   "/page": "app/page.js",
-  "/api/text/route": "app/api/text/route.js",
-  "/api/recognition/route": "app/api/recognition/route.js"
+  "/api/text/route": "app/api/text/route.js"
 }
