@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-import Footer from "./footer";
+import Footer from "./Footer";
 
 export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
