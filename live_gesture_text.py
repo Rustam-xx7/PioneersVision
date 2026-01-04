@@ -12,8 +12,8 @@ warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
 warnings.filterwarnings('ignore', message='X does not have valid feature names')
 warnings.simplefilter(action='ignore', category=UserWarning)
 
-from PioneersVision.func_root.translation.translator import translate
-from PioneersVision.func_root.speech.process_translation import process_translation
+from func_root.translation.translator import translate
+from func_root.speech.process_translation import process_translation
 
 # ================= LOAD MODEL =================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
