@@ -109,7 +109,7 @@ export default function Home() {
       <div className="min-h-screen p-8 px-20">
         <div className="max-w-screen mx-auto">
           <span className="text-white text-5xl font-semibold font-mono w-full  top-10 left-0 flex justify-center">
-            Pioneers Vision
+            Vision X
           </span>
           <div className="herroSection h-[100vh]  w-full flex justify-around items-center mt-0  gap-6">
             <div className="left  h-fit w-full">
